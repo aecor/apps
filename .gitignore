@@ -58,6 +58,11 @@ src_managed/
 project/boot/
 .history
 .cache
+project/plugins/project/
+project/.boot/
+project/.ivy/
+project/.sbtboot/
+.ivy2/
 
 #####=== Scala ===#####
 
