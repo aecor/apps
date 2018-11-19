@@ -10,8 +10,12 @@ lazy val buildSettings = inThisBuild(
   )
 )
 
+//val ivyLocal = Resolver.file("local", file("/development/projects/02_arch/aecor" + "/.ivy2/local"))(Resolver.ivyStylePatterns)
+
 lazy val commonSettings = Seq(
+
   resolvers += "jitpack" at "https://jitpack.io",
+
   scalacOptions ++= commonScalacOptions,
   addCompilerPlugin("org.spire-math" %% "kind-projector" % versions.kindProjector),
   parallelExecution in Test := false,
@@ -38,6 +42,7 @@ def aecorModule(id: String, description: String): Project =
 lazy val examples = aecorModule("examples", "Aecor Examples Applications")
   //.dependsOn(core, schedule, distributedProcessing, boopickleWireProtocol)
   .settings(aecorSettings)
+  .settings(coreSettings)
   .settings(noPublishSettings)
   .settings(examplesSettings)
 
@@ -64,7 +69,9 @@ lazy val examplesSettings = {
       "org.scalameta" % "paradise" % versions.scalametaParadise cross CrossVersion.patch
     ),
     resolvers += Resolver.sonatypeRepo("releases"),
+    resolvers += Resolver.file("aecor-local", file("/development/projects/02_arch/aecor" + "/.ivy2/local"))(Resolver.ivyStylePatterns),
     resolvers += "krasserm at bintray" at "http://dl.bintray.com/krasserm/maven",
+
     libraryDependencies ++=
       Seq(
         "com.github.krasserm" %% "streamz-converter" % "0.10-M1",
