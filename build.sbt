@@ -69,7 +69,6 @@ lazy val examplesSettings = {
       "org.scalameta" % "paradise" % versions.scalametaParadise cross CrossVersion.patch
     ),
     resolvers += Resolver.sonatypeRepo("releases"),
-    resolvers += Resolver.file("aecor-local", file("/development/projects/02_arch/aecor" + "/.ivy2/local"))(Resolver.ivyStylePatterns),
     resolvers += "krasserm at bintray" at "http://dl.bintray.com/krasserm/maven",
 
     libraryDependencies ++=
