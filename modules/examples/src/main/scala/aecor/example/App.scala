@@ -26,8 +26,10 @@ import org.http4s.server.blaze.BlazeBuilder
 object App extends IOApp {
 
   override def run(args: List[String]): IO[ExitCode] = IO.suspend {
+
     val config = ConfigFactory.load()
     implicit val system: ActorSystem = ActorSystem(config.getString("cluster.system-name"))
+
     system.registerOnTermination {
       System.exit(1)
     }
@@ -55,6 +57,7 @@ object App extends IOApp {
       accounts: Accounts[IO],
       transactions: Transactions[IO]
     ): IO[DistributedProcessing.KillSwitch[IO]] =
+
       createOffsetStore.flatMap { offsetStore =>
         val processor =
           TransactionProcessor(transactions, accounts)
@@ -67,6 +70,7 @@ object App extends IOApp {
             .eventsByTag(tag, consumerId)
             .toStream[IO]()
         }
+
         FS2QueueProcess.create(sources).flatMap {
           case (stream, processes) =>
             val run = distributedProcessing.start[IO]("TransactionProcessing", processes)
@@ -111,5 +115,4 @@ object App extends IOApp {
           }
     } yield ExitCode.Success
   }
-
 }
