@@ -11,13 +11,18 @@ import cats.implicits._
 
 
 final class TransactionProcessor[F[_]](transactions: Transactions[F], accounts: Accounts[F])(implicit F: MonadError[F, Throwable]) {
+
   def process[A: Has[?, TransactionId]: Has[?, TransactionEvent]](a: A): F[Unit] = {
+
     val transactionId = a.get[TransactionId]
+
     a.get[TransactionEvent] match {
+
       case TransactionEvent.TransactionCreated(From(from), _, amount) =>
         for {
           out <- accounts(from)
                   .debit(AccountTransactionId(transactionId, AccountTransactionKind.Normal), amount)
+
           _ <- out match {
                 case Left(rejection) =>
                   transactions(transactionId).fail(rejection.toString)
@@ -25,16 +30,19 @@ final class TransactionProcessor[F[_]](transactions: Transactions[F], accounts: 
                   transactions(transactionId).authorize
               }
         } yield ()
+
       case TransactionEvent.TransactionAuthorized =>
         for {
           txn <- transactions(transactionId).getInfo.flatMap {
             case Right(x) => x.pure[F]
             case Left(r) => F.raiseError[TransactionInfo](TransactionProcessor.Failure(r))
           }
+
           creditResult <- accounts(txn.toAccountId.value).credit(
                            AccountTransactionId(transactionId, AccountTransactionKind.Normal),
                            txn.amount
                          )
+
           _ <- creditResult match {
                 case Left(rejection) =>
                   accounts(txn.fromAccountId.value).credit(
@@ -45,6 +53,7 @@ final class TransactionProcessor[F[_]](transactions: Transactions[F], accounts: 
                   transactions(transactionId).succeed
               }
         } yield ()
+
       case _ =>
         ().pure[F]
     }

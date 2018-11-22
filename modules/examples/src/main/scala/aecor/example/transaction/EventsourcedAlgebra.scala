@@ -100,16 +100,19 @@ object EventsourcedAlgebra {
     Tagging.partitioned(20)(EventTag("Transaction"))
 
   sealed abstract class TransactionStatus
+
   object TransactionStatus {
     case object Requested extends TransactionStatus
     case object Authorized extends TransactionStatus
     case object Failed extends TransactionStatus
     case object Succeeded extends TransactionStatus
   }
+
   final case class State(status: TransactionStatus,
                          from: From[AccountId],
                          to: To[AccountId],
                          amount: Amount) {
+
     def applyEvent(event: TransactionEvent): Folded[State] = event match {
       case TransactionCreated(_, _, _) => impossible
       case TransactionAuthorized       => copy(status = TransactionStatus.Authorized).next
@@ -117,10 +120,13 @@ object EventsourcedAlgebra {
       case TransactionSucceeded        => copy(status = TransactionStatus.Succeeded).next
     }
   }
+
   object State {
     def fromEvent(event: TransactionEvent): Folded[State] = event match {
+
       case TransactionEvent.TransactionCreated(fromAccount, toAccount, amount) =>
         State(TransactionStatus.Requested, fromAccount, toAccount, amount).next
+
       case _ => impossible
     }
   }

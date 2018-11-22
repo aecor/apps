@@ -37,11 +37,14 @@ object TransactionRoute {
   }
 
   private final class Builder[F[_]: Sync](service: TransactionService[F]) extends Http4sDsl[F] with CirceEntityDecoder {
+
     def routes: HttpRoutes[F] = HttpRoutes.of[F] {
+
       case req @ PUT -> Root / "transactions" / TransactionIdVar(transactionId) =>
         for {
           body <- req.as[CreateTransactionRequest]
           CreateTransactionRequest(from, to, amount) = body
+
           resp <- service.authorizePayment(transactionId, from, to, amount).flatMap {
             case ApiResult.Authorized =>
               Ok("Authorized")
@@ -49,6 +52,7 @@ object TransactionRoute {
               BadRequest(s"Declined: $reason")
           }
         } yield resp
+
       case POST -> Root / "test" =>
         service
           .authorizePayment(

@@ -68,20 +68,26 @@ object EventsourcedAlgebra {
   val tagging: Tagging[AccountId] = Tagging.const[AccountId](EventTag("Account"))
 
   final val rootAccountId: AccountId = AccountId("ROOT")
+
   final case class AccountState(balance: Amount,
                                 processedTransactions: Set[AccountTransactionId],
                                 checkBalance: Boolean) {
+
     def hasProcessedTransaction(transactionId: AccountTransactionId): Boolean =
       processedTransactions.contains(transactionId)
+
     def hasFunds(amount: Amount): Boolean =
       !checkBalance || balance >= amount
+
     def applyEvent(event: AccountEvent): Folded[AccountState] = event match {
       case AccountOpened(_) => impossible
+
       case AccountDebited(transactionId, amount) =>
         copy(
           balance = balance - amount,
           processedTransactions = processedTransactions + transactionId
         ).next
+
       case AccountCredited(transactionId, amount) =>
         copy(
           balance = balance + amount,
@@ -89,6 +95,7 @@ object EventsourcedAlgebra {
         ).next
     }
   }
+
   object AccountState {
     def fromEvent(event: AccountEvent): Folded[AccountState] = event match {
       case AccountOpened(checkBalance) => AccountState(Amount.zero, Set.empty, checkBalance).next

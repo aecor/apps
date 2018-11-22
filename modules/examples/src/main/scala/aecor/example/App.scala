@@ -53,18 +53,28 @@ object App extends IOApp {
     val createOffsetStore =
       createCassandraSession.map(CassandraOffsetStore[IO](_, offsetStoreConfig))
 
+    /**
+      *
+      * @param accounts
+      * @param transactions
+      * @return
+      */
     def startTransactionProcessing(
       accounts: Accounts[IO],
       transactions: Transactions[IO]
     ): IO[DistributedProcessing.KillSwitch[IO]] =
 
       createOffsetStore.flatMap { offsetStore =>
+
         val processor =
           TransactionProcessor(transactions, accounts)
+
         val journal = runtime
           .journal[TransactionId, Enriched[Timestamp, TransactionEvent]]
           .committable(offsetStore)
+
         val consumerId = ConsumerId("processing")
+
         val sources = transaction.EventsourcedAlgebra.tagging.tags.map { tag =>
           journal
             .eventsByTag(tag, consumerId)
