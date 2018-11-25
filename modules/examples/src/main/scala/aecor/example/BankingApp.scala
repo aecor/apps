@@ -73,7 +73,7 @@ object BankingApp extends IOApp {
 
         val consumerId = ConsumerId("processing")
 
-        val sources = transaction.EventSourcedAlgebra.tagging.tags.map { tag =>
+        val sources = transaction.EventsourcedAlgebra.tagging.tags.map { tag =>
           journal
             .eventsByTag(tag, consumerId)
             .toStream[IO]()

@@ -25,12 +25,12 @@ object TransactionRoute {
   object ApiResult {
 
     /**
-      * @see [[aecor.example.transaction.EventSourcedAlgebra.TransactionStatus.Authorized]]
+      * @see [[aecor.example.transaction.EventsourcedAlgebra.TransactionStatus.Authorized]]
       */
     case object Authorized extends ApiResult
 
     /**
-      * @see [[aecor.example.transaction.EventSourcedAlgebra.TransactionStatus.Failed]]
+      * @see [[aecor.example.transaction.EventsourcedAlgebra.TransactionStatus.Failed]]
       */
     case class Declined(reason: String) extends ApiResult
   }
@@ -70,7 +70,7 @@ object TransactionRoute {
         service
           .authorizePayment(
             TransactionId(UUID.randomUUID.toString),
-            From(account.EventSourcedAlgebra.rootAccountId),
+            From(account.EventsourcedAlgebra.rootAccountId),
             To(AccountId("foo")),
             Amount(1)
           )

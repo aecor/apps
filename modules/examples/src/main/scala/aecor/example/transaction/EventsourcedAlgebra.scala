@@ -7,8 +7,8 @@ import aecor.es.DomainState
 import aecor.example.account.AccountId
 import aecor.example.common.Amount
 import aecor.example.transaction.Algebra.TransactionInfo
-import aecor.example.transaction.EventSourcedAlgebra.TransactionState
-import aecor.example.transaction.EventSourcedAlgebra.TransactionStatus.{
+import aecor.example.transaction.EventsourcedAlgebra.TransactionState
+import aecor.example.transaction.EventsourcedAlgebra.TransactionStatus.{
   Authorized,
   Failed,
   Requested,
@@ -18,7 +18,7 @@ import aecor.example.transaction.TransactionEvent._
 import cats.Monad
 import cats.implicits._
 
-class EventSourcedAlgebra[F[_]](
+class EventsourcedAlgebra[F[_]](
   implicit F: MonadActionReject[F, Option[TransactionState], TransactionEvent, String]
 ) extends Algebra[F] {
   import F._
@@ -84,10 +84,10 @@ class EventSourcedAlgebra[F[_]](
     }
 }
 
-object EventSourcedAlgebra {
+object EventsourcedAlgebra {
   def apply[F[_]: MonadActionReject[?[_], Option[TransactionState], TransactionEvent, String]]
     : Algebra[F] =
-    new EventSourcedAlgebra
+    new EventsourcedAlgebra
 
   def behavior[F[_]: Monad]: EventsourcedBehavior[EitherK[Algebra, String, ?[_]], F, Option[TransactionState], TransactionEvent] =
     EventsourcedBehavior

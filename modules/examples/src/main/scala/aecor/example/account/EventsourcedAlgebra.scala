@@ -5,13 +5,13 @@ import aecor.data.Folded.syntax._
 import aecor.data._
 import aecor.es.DomainState
 import aecor.example.account.AccountEvent._
-import aecor.example.account.EventSourcedAlgebra.AccountState
+import aecor.example.account.EventsourcedAlgebra.AccountState
 import aecor.example.account.Rejection._
 import aecor.example.common.Amount
 import cats.Monad
 import cats.implicits._
 
-final class EventSourcedAlgebra[F[_]](
+final class EventsourcedAlgebra[F[_]](
   implicit F: MonadActionReject[F, Option[AccountState], AccountEvent, Rejection]
 ) extends Algebra[F] {
 
@@ -54,17 +54,17 @@ final class EventSourcedAlgebra[F[_]](
     }
 }
 
-object EventSourcedAlgebra {
+object EventsourcedAlgebra {
 
   def apply[F[_]](
     implicit F: MonadActionReject[F, Option[AccountState], AccountEvent, Rejection]
-  ): Algebra[F] = new EventSourcedAlgebra
+  ): Algebra[F] = new EventsourcedAlgebra
 
   def behavior[F[_]: Monad]: EventsourcedBehavior[EitherK[Algebra, Rejection, ?[_]], F, Option[
     AccountState
   ], AccountEvent] =
     EventsourcedBehavior
-      .optionalRejectable(EventSourcedAlgebra.apply, AccountState.fromEvent, _.applyEvent(_))
+      .optionalRejectable(EventsourcedAlgebra.apply, AccountState.fromEvent, _.applyEvent(_))
 
   val tagging: Tagging[AccountId] = Tagging.const[AccountId](EventTag("Account"))
 
