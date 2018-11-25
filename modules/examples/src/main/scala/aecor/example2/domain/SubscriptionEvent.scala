@@ -2,7 +2,7 @@
 //
 //import aecor.data.Enriched
 //import aecor.runtime.akkapersistence.serialization.{ PersistentDecoder, PersistentEncoder }
-//import aecor.example.persistentEncoderUtil
+//import aecor.util.persistentEncoderUtil
 //
 //import aecor.example.domain.EventMeta
 //import io.circe.generic.auto._

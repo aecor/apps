@@ -26,10 +26,12 @@ final class DefaultTransactionService[F[_]](transactions: Transactions[F])(
             case _ =>
               F.raiseError[Algebra.TransactionInfo](new IllegalStateException("Something went bad"))
           }
+
         def loop: F[Boolean] = getTransaction.flatMap {
           case Algebra.TransactionInfo(_, _, _, Some(value)) => value.pure[F]
           case _                                             => timer.sleep(10.millis) >> loop
         }
+
         Concurrent.timeout(loop, 10.seconds)
       }
       .map { succeeded =>

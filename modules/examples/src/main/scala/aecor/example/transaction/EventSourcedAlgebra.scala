@@ -3,11 +3,12 @@ package aecor.example.transaction
 import aecor.MonadActionReject
 import aecor.data.Folded.syntax._
 import aecor.data._
+import aecor.es.DomainState
 import aecor.example.account.AccountId
 import aecor.example.common.Amount
 import aecor.example.transaction.Algebra.TransactionInfo
-import aecor.example.transaction.EventsourcedAlgebra.State
-import aecor.example.transaction.EventsourcedAlgebra.TransactionStatus.{
+import aecor.example.transaction.EventSourcedAlgebra.TransactionState
+import aecor.example.transaction.EventSourcedAlgebra.TransactionStatus.{
   Authorized,
   Failed,
   Requested,
@@ -17,8 +18,8 @@ import aecor.example.transaction.TransactionEvent._
 import cats.Monad
 import cats.implicits._
 
-class EventsourcedAlgebra[F[_]](
-  implicit F: MonadActionReject[F, Option[State], TransactionEvent, String]
+class EventSourcedAlgebra[F[_]](
+  implicit F: MonadActionReject[F, Option[TransactionState], TransactionEvent, String]
 ) extends Algebra[F] {
   import F._
   override def create(fromAccountId: From[AccountId],
@@ -73,7 +74,7 @@ class EventsourcedAlgebra[F[_]](
 
   override def getInfo: F[TransactionInfo] =
     read.flatMap {
-      case Some(State(status, from, to, amount)) =>
+      case Some(TransactionState(status, from, to, amount)) =>
         TransactionInfo(from, to, amount, Some(status).collect {
           case Succeeded => true
           case Failed    => false
@@ -83,16 +84,16 @@ class EventsourcedAlgebra[F[_]](
     }
 }
 
-object EventsourcedAlgebra {
-  def apply[F[_]: MonadActionReject[?[_], Option[State], TransactionEvent, String]]: Algebra[F] =
-    new EventsourcedAlgebra
+object EventSourcedAlgebra {
+  def apply[F[_]: MonadActionReject[?[_], Option[TransactionState], TransactionEvent, String]]
+    : Algebra[F] =
+    new EventSourcedAlgebra
 
-  def behavior[F[_]: Monad]
-    : EventsourcedBehavior[EitherK[Algebra, String, ?[_]], F, Option[State], TransactionEvent] =
+  def behavior[F[_]: Monad]: EventsourcedBehavior[EitherK[Algebra, String, ?[_]], F, Option[TransactionState], TransactionEvent] =
     EventsourcedBehavior
-      .optionalRejectable[Algebra, F, State, TransactionEvent, String](
+      .optionalRejectable[Algebra, F, TransactionState, TransactionEvent, String](
         apply,
-        State.fromEvent,
+        TransactionState.fromEvent,
         _.applyEvent(_)
       )
 
@@ -108,12 +109,13 @@ object EventsourcedAlgebra {
     case object Succeeded extends TransactionStatus
   }
 
-  final case class State(status: TransactionStatus,
-                         from: From[AccountId],
-                         to: To[AccountId],
-                         amount: Amount) {
+  final case class TransactionState(status: TransactionStatus,
+                                    from: From[AccountId],
+                                    to: To[AccountId],
+                                    amount: Amount)
+      extends DomainState {
 
-    def applyEvent(event: TransactionEvent): Folded[State] = event match {
+    def applyEvent(event: TransactionEvent): Folded[TransactionState] = event match {
       case TransactionCreated(_, _, _) => impossible
       case TransactionAuthorized       => copy(status = TransactionStatus.Authorized).next
       case TransactionFailed(_)        => copy(status = TransactionStatus.Failed).next
@@ -121,11 +123,11 @@ object EventsourcedAlgebra {
     }
   }
 
-  object State {
-    def fromEvent(event: TransactionEvent): Folded[State] = event match {
+  object TransactionState {
+    def fromEvent(event: TransactionEvent): Folded[TransactionState] = event match {
 
       case TransactionEvent.TransactionCreated(fromAccount, toAccount, amount) =>
-        State(TransactionStatus.Requested, fromAccount, toAccount, amount).next
+        TransactionState(TransactionStatus.Requested, fromAccount, toAccount, amount).next
 
       case _ => impossible
     }

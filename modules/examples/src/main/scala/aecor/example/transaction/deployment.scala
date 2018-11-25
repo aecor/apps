@@ -16,8 +16,8 @@ object deployment {
     runtime
       .deploy(
         "Transaction",
-        EventsourcedAlgebra.behavior[F].enrich(clock.instant.map(Timestamp(_))),
-        EventsourcedAlgebra.tagging
+        EventSourcedAlgebra.behavior[F].enrich(clock.instant.map(Timestamp(_))),
+        EventSourcedAlgebra.tagging
       )
       .map(Eventsourced.Entities.fromEitherK(_))
 }

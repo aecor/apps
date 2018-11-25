@@ -30,6 +30,7 @@ object ScheduleApp extends IOApp {
     val offsetStoreConfig = CassandraOffsetStore.Queries("aecor_example")
     val scheduleEntryRepositoryQueries =
       CassandraScheduleEntryRepository.Queries("aecor_example", "schedule_entries")
+
     def createCassandraSession[F[_]: Effect] = DefaultJournalCassandraSession[F](
       system,
       "App",
@@ -103,5 +104,4 @@ object ScheduleApp extends IOApp {
       }
     } yield ExitCode.Success
   }
-
 }

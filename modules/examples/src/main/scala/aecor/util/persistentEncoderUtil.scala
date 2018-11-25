@@ -1,4 +1,4 @@
-package aecor.example
+package aecor.util
 
 import java.nio.ByteBuffer
 import java.nio.charset.StandardCharsets

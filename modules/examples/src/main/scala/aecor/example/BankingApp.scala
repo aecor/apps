@@ -23,7 +23,7 @@ import fs2._
 import org.http4s.server.Server
 import org.http4s.server.blaze.BlazeBuilder
 
-object App extends IOApp {
+object BankingApp extends IOApp {
 
   override def run(args: List[String]): IO[ExitCode] = IO.suspend {
 
@@ -63,9 +63,7 @@ object App extends IOApp {
       accounts: Accounts[IO],
       transactions: Transactions[IO]
     ): IO[DistributedProcessing.KillSwitch[IO]] =
-
       createOffsetStore.flatMap { offsetStore =>
-
         val processor =
           TransactionProcessor(transactions, accounts)
 
@@ -75,7 +73,7 @@ object App extends IOApp {
 
         val consumerId = ConsumerId("processing")
 
-        val sources = transaction.EventsourcedAlgebra.tagging.tags.map { tag =>
+        val sources = transaction.EventSourcedAlgebra.tagging.tags.map { tag =>
           journal
             .eventsByTag(tag, consumerId)
             .toStream[IO]()

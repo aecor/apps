@@ -1,9 +1,9 @@
 package aecor.example.account
 
-import aecor.example.AnyValCirceEncoding
 import aecor.example.common.Amount
 import aecor.example.transaction.TransactionId
 import aecor.macros.boopickleWireProtocol
+import aecor.util.AnyValCirceEncoding
 import io.circe.{ Decoder, Encoder }
 import boopickle.Default._
 import cats.tagless.autoFunctorK

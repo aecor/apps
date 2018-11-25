@@ -5,13 +5,12 @@ import java.util.UUID
 import aecor.example.account
 import aecor.example.account.AccountId
 import aecor.example.common.Amount
-import cats.effect.{Effect, Sync}
+import cats.effect.{ Effect, Sync }
 import cats.implicits._
 import org.http4s.HttpRoutes
 import org.http4s.circe.CirceEntityDecoder
 import org.http4s.dsl.Http4sDsl
 import io.circe.generic.auto._
-
 
 trait TransactionService[F[_]] {
   def authorizePayment(transactionId: TransactionId,
@@ -24,7 +23,15 @@ object TransactionRoute {
 
   sealed trait ApiResult
   object ApiResult {
+
+    /**
+      * @see [[aecor.example.transaction.EventSourcedAlgebra.TransactionStatus.Authorized]]
+      */
     case object Authorized extends ApiResult
+
+    /**
+      * @see [[aecor.example.transaction.EventSourcedAlgebra.TransactionStatus.Failed]]
+      */
     case class Declined(reason: String) extends ApiResult
   }
 
@@ -36,7 +43,9 @@ object TransactionRoute {
     def unapply(arg: String): Option[TransactionId] = TransactionId(arg).some
   }
 
-  private final class Builder[F[_]: Sync](service: TransactionService[F]) extends Http4sDsl[F] with CirceEntityDecoder {
+  private final class Builder[F[_]: Sync](service: TransactionService[F])
+      extends Http4sDsl[F]
+      with CirceEntityDecoder {
 
     def routes: HttpRoutes[F] = HttpRoutes.of[F] {
 
@@ -45,28 +54,36 @@ object TransactionRoute {
           body <- req.as[CreateTransactionRequest]
           CreateTransactionRequest(from, to, amount) = body
 
-          resp <- service.authorizePayment(transactionId, from, to, amount).flatMap {
-            case ApiResult.Authorized =>
-              Ok("Authorized")
-            case ApiResult.Declined(reason) =>
-              BadRequest(s"Declined: $reason")
-          }
+          resp <- service
+                   .authorizePayment(transactionId, from, to, amount)
+                   .flatMap {
+
+                     case ApiResult.Authorized =>
+                       Ok("Authorized")
+
+                     case ApiResult.Declined(reason) =>
+                       BadRequest(s"Declined: $reason")
+                   }
         } yield resp
 
       case POST -> Root / "test" =>
         service
           .authorizePayment(
             TransactionId(UUID.randomUUID.toString),
-            From(account.EventsourcedAlgebra.rootAccountId),
+            From(account.EventSourcedAlgebra.rootAccountId),
             To(AccountId("foo")),
             Amount(1)
           )
           .flatMap {
-          case ApiResult.Authorized =>
-            Ok("Authorized")
-          case ApiResult.Declined(reason) =>
-            BadRequest(s"Declined: $reason")
-        }
+            case ApiResult.Authorized =>
+              Ok("Authorized")
+
+            case ApiResult.Declined(reason) =>
+              BadRequest(s"Declined: $reason")
+          }
+
+      case req =>
+        BadRequest(s"Unexpected request: ${req.method} - ${req.uri}")
     }
   }
 

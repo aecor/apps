@@ -3,19 +3,12 @@
 import pl.project13.scala.sbt._
 import Dependencies.versions
 
-lazy val buildSettings = inThisBuild(
-  Seq(
-    organization := "io.aecor",
-    scalaVersion := "2.12.4"
-  )
-)
+lazy val buildSettings = inThisBuild(Seq(organization := "io.aecor", scalaVersion := "2.12.4"))
 
 //val ivyLocal = Resolver.file("local", file("/development/projects/02_arch/aecor" + "/.ivy2/local"))(Resolver.ivyStylePatterns)
 
 lazy val commonSettings = Seq(
-
   resolvers += "jitpack" at "https://jitpack.io",
-
   scalacOptions ++= commonScalacOptions,
   addCompilerPlugin("org.spire-math" %% "kind-projector" % versions.kindProjector),
   parallelExecution in Test := false,
@@ -31,16 +24,14 @@ lazy val aecorApps = project
   .settings(moduleName := "aecorApps", name := "AecorApps")
   .settings(aecorSettings)
   .settings(noPublishSettings)
-  .aggregate(
-    examples
-  )
+  .aggregate(examples)
 
 def aecorModule(id: String, description: String): Project =
   Project(id, file(s"modules/$id"))
     .settings(moduleName := id, name := description)
 
 lazy val examples = aecorModule("examples", "Aecor Examples Applications")
-  //.dependsOn(core, schedule, distributedProcessing, boopickleWireProtocol)
+//.dependsOn(core, schedule, distributedProcessing, boopickleWireProtocol)
   .settings(aecorSettings)
   .settings(coreSettings)
   .settings(noPublishSettings)
@@ -70,7 +61,6 @@ lazy val examplesSettings = {
     ),
     resolvers += Resolver.sonatypeRepo("releases"),
     resolvers += "krasserm at bintray" at "http://dl.bintray.com/krasserm/maven",
-
     libraryDependencies ++=
       Seq(
         "com.github.krasserm" %% "streamz-converter" % "0.10-M1",
@@ -96,7 +86,6 @@ lazy val testKitSettings = Seq(
     "com.github.julien-truffaut" %% "monocle-macro" % versions.monocle
   )
 )
-
 
 lazy val commonScalacOptions = Seq(
   "-deprecation",
