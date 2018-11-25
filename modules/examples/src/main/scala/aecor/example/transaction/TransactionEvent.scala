@@ -5,7 +5,7 @@ import aecor.es.DomainEvent
 import aecor.example.account.AccountId
 import aecor.example.common.{ Amount, Timestamp }
 import aecor.runtime.akkapersistence.serialization.{ PersistentDecoder, PersistentEncoder }
-import aecor.util.persistentEncoderUtil
+import aecor.util.CircePersistentEncoderUtil
 import io.circe.generic.auto._
 import io.circe.java8.time._
 
@@ -24,7 +24,7 @@ object TransactionEvent {
   case object TransactionSucceeded extends TransactionEvent
 
   implicit val encoder: PersistentEncoder[Enriched[Timestamp, TransactionEvent]] =
-    persistentEncoderUtil.circePersistentEncoder
+    CircePersistentEncoderUtil.encoder
   implicit val decoder: PersistentDecoder[Enriched[Timestamp, TransactionEvent]] =
-    persistentEncoderUtil.circePersistentDecoder
+    CircePersistentEncoderUtil.decoder
 }

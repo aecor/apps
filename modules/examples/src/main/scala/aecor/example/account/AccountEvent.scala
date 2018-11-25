@@ -4,7 +4,7 @@ import aecor.data.Enriched
 import aecor.es.DomainEvent
 import aecor.example.common.{ Amount, Timestamp }
 import aecor.runtime.akkapersistence.serialization.{ PersistentDecoder, PersistentEncoder }
-import aecor.util.persistentEncoderUtil
+import aecor.util.CircePersistentEncoderUtil
 //
 import io.circe.generic.auto._
 import io.circe.java8.time._
@@ -22,8 +22,8 @@ object AccountEvent {
       extends AccountEvent
 
   implicit val encoder: PersistentEncoder[Enriched[Timestamp, AccountEvent]] =
-    persistentEncoderUtil.circePersistentEncoder(Encoder[Enriched[Timestamp, AccountEvent]])
+    CircePersistentEncoderUtil.encoder(Encoder[Enriched[Timestamp, AccountEvent]])
 
   implicit val decoder: PersistentDecoder[Enriched[Timestamp, AccountEvent]] =
-    persistentEncoderUtil.circePersistentDecoder[Enriched[Timestamp, AccountEvent]]
+    CircePersistentEncoderUtil.decoder[Enriched[Timestamp, AccountEvent]]
 }
