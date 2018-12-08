@@ -31,6 +31,7 @@ docker rm cassandra-dev
 ##### Start example app
 
 ```
+project examples
 runMain aecor.example.BankingApp
 ```
 
