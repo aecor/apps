@@ -3,7 +3,6 @@ package aecor.example.transaction
 import aecor.MonadActionReject
 import aecor.data.Folded.syntax._
 import aecor.data._
-import aecor.es.DomainState
 import aecor.example.account.AccountId
 import aecor.example.common.Amount
 import aecor.example.transaction.Algebra.TransactionInfo
@@ -113,7 +112,7 @@ object EventsourcedAlgebra {
                                     from: From[AccountId],
                                     to: To[AccountId],
                                     amount: Amount)
-      extends DomainState {
+      extends Product with Serializable {
 
     def applyEvent(event: TransactionEvent): Folded[TransactionState] = event match {
       case TransactionCreated(_, _, _) => impossible

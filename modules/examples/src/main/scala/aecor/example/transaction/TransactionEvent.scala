@@ -1,15 +1,14 @@
 package aecor.example.transaction
 
 import aecor.data.Enriched
-import aecor.es.DomainEvent
 import aecor.example.account.AccountId
 import aecor.example.common.{ Amount, Timestamp }
 import aecor.runtime.akkapersistence.serialization.{ PersistentDecoder, PersistentEncoder }
-import aecor.util.PersistentEncoderCirceUtil
+import aecor.util.PersistentEncoderCirce
 import io.circe.generic.auto._
 import io.circe.java8.time._
 
-sealed abstract class TransactionEvent extends DomainEvent
+sealed abstract class TransactionEvent extends Product with Serializable
 
 object TransactionEvent {
   final case class TransactionCreated(fromAccount: From[AccountId],
@@ -24,7 +23,7 @@ object TransactionEvent {
   case object TransactionSucceeded extends TransactionEvent
 
   implicit val encoder: PersistentEncoder[Enriched[Timestamp, TransactionEvent]] =
-    PersistentEncoderCirceUtil.encoder
+    PersistentEncoderCirce.encoder
   implicit val decoder: PersistentDecoder[Enriched[Timestamp, TransactionEvent]] =
-    PersistentEncoderCirceUtil.decoder
+    PersistentEncoderCirce.decoder
 }

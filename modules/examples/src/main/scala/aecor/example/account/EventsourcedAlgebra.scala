@@ -3,7 +3,6 @@ package aecor.example.account
 import aecor.MonadActionReject
 import aecor.data.Folded.syntax._
 import aecor.data._
-import aecor.es.DomainState
 import aecor.example.account.AccountEvent._
 import aecor.example.account.EventsourcedAlgebra.AccountState
 import aecor.example.account.Rejection._
@@ -73,7 +72,7 @@ object EventsourcedAlgebra {
   final case class AccountState(balance: Amount,
                                 processedTransactions: Set[AccountTransactionId],
                                 checkBalance: Boolean)
-      extends DomainState {
+      extends Product with Serializable {
 
     def hasProcessedTransaction(transactionId: AccountTransactionId): Boolean =
       processedTransactions.contains(transactionId)
