@@ -3,7 +3,7 @@
 import pl.project13.scala.sbt._
 import Dependencies.versions
 
-lazy val buildSettings = inThisBuild(Seq(organization := "io.aecor", scalaVersion := "2.12.4"))
+lazy val buildSettings = inThisBuild(Seq(organization := "io.aecor", scalaVersion := "2.12.7"))
 
 //val ivyLocal = Resolver.file("local", file("/development/projects/02_arch/aecor" + "/.ivy2/local"))(Resolver.ivyStylePatterns)
 
